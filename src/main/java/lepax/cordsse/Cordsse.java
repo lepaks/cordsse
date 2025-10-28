@@ -10,6 +10,7 @@ public class Cordsse {
     private static boolean initialized = false;
     private static volatile boolean running = true;
     private static String lastSignature = "";
+    private static long startTimestamp = System.currentTimeMillis() / 1000;
 
     public void init() {
         if (!initialized) {
@@ -78,25 +79,37 @@ public class Cordsse {
 
         String playerIcon = "icon";
         String playerHealth = "";
-
         if (!inMenu && getGameClient() != null && getGameClient().getPlayer() != null) {
             int hp = getGameClient().getPlayer().getHealth();
             playerHealth = hp + " HP";
         }
 
-        String signature = state + "|" + details + "|" + bigKey + "|" + bigText + "|" + playerHealth;
-        if (signature.equals(lastSignature)) return;
+        String signature = state + "|" + details + "|" + bigKey + "|" + bigText + "|" + playerIcon;
+        if (signature.equals(lastSignature)) {
+            DiscordRichPresence.Builder builder = new DiscordRichPresence.Builder(state)
+                    .setDetails(details)
+                    .setBigImage(bigKey, bigText)
+                    .setStartTimestamps(startTimestamp);
+
+            if (!inMenu) {
+                builder.setSmallImage(playerIcon, playerHealth);
+            }
+
+            DiscordRPC.discordUpdatePresence(builder.build());
+            return;
+        }
+
         lastSignature = signature;
 
         DiscordRichPresence.Builder builder = new DiscordRichPresence.Builder(state)
                 .setDetails(details)
-                .setBigImage(bigKey, bigText);
+                .setBigImage(bigKey, bigText)
+                .setStartTimestamps(startTimestamp);
 
         if (!inMenu) {
             builder.setSmallImage(playerIcon, playerHealth);
         }
 
-        DiscordRichPresence rich = builder.build();
-        DiscordRPC.discordUpdatePresence(rich);
+        DiscordRPC.discordUpdatePresence(builder.build());
     }
 }
