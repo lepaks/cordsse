@@ -4,6 +4,7 @@ import necesse.engine.GlobalData;
 import necesse.engine.network.client.Client;
 import necesse.engine.state.MainGame;
 import necesse.engine.state.State;
+import net.arikia.dev.drpc.DiscordRichPresence;
 
 import java.util.Objects;
 
@@ -23,7 +24,7 @@ class PlayerPresence {
             Client client = getGameClient();
 
             if (client != null || client.getPlayer() != null) {
-                return String.format("in World as %s", client.getPlayer().playerName);
+                return String.format("in %s as %s", client.getLocalServer().world.displayName, client.getPlayer().playerName);
             } else {
                 return "Game";
             }
